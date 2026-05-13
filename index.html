@@ -8,195 +8,139 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap');
         
-        :root {
-            --primary: 234 179 8;
-        }
+        .logo-font { font-family: 'Space Grotesk', sans-serif; }
         
-        .tail-container {
-            font-family: 'Inter', system-ui, sans-serif;
-        }
-        
-        .logo-font {
-            font-family: 'Space Grotesk', sans-serif;
-        }
-
         .drop-zone {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
         .drop-zone.dragover {
-            background-color: rgb(250 204 21 / 0.1);
+            background-color: rgb(234 179 8 / 0.1);
             border-color: rgb(234 179 8);
             transform: scale(1.02);
         }
-
-        .preview-container {
-            max-height: 65vh;
-        }
     </style>
 </head>
-<body class="tail-container bg-zinc-950 text-white min-h-screen">
-    <div class="max-w-7xl mx-auto">
+<body class="bg-zinc-950 text-white min-h-screen font-sans">
+    <div class="max-w-6xl mx-auto px-4 py-6">
         <!-- Header -->
-        <header class="border-b border-zinc-800 bg-zinc-950 py-5 px-8 flex items-center justify-between sticky top-0 z-50">
-            <div class="flex items-center gap-x-3">
-                <div class="w-9 h-9 bg-yellow-400 rounded-2xl flex items-center justify-center text-zinc-950 font-bold text-2xl logo-font">S</div>
-                <div>
-                    <span class="text-3xl font-semibold tracking-tighter logo-font">SimpleDocs</span>
-                </div>
-            </div>
-            <div class="flex items-center gap-x-8 text-sm">
-                <a href="#" class="hover:text-yellow-400 transition-colors">Image to PDF</a>
-                <a href="#" class="hover:text-yellow-400 transition-colors">Merge PDF</a>
-                <a href="#" class="hover:text-yellow-400 transition-colors">Compress</a>
-                <button onclick="window.location.reload()" 
-                        class="px-5 py-2 bg-white text-zinc-900 rounded-2xl font-medium hover:bg-yellow-400 transition-colors">
-                    New Document
-                </button>
+        <header class="flex items-center justify-between mb-10">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-yellow-400 text-zinc-950 rounded-2xl flex items-center justify-center text-3xl font-bold logo-font">S</div>
+                <span class="text-4xl font-semibold tracking-tighter logo-font">SimpleDocs</span>
             </div>
         </header>
 
-        <div class="flex">
-            <!-- Sidebar -->
-            <div class="w-72 border-r border-zinc-800 min-h-[calc(100vh-73px)] bg-zinc-900 p-6 hidden lg:block">
-                <div class="space-y-8">
-                    <div>
-                        <h3 class="text-xs uppercase tracking-widest text-zinc-500 mb-3">Tools</h3>
-                        <div class="space-y-1">
-                            <div class="flex items-center gap-x-3 px-4 py-3 bg-zinc-800 rounded-3xl text-yellow-400">
-                                <span class="text-xl">📄</span>
-                                <span class="font-medium">Image → PDF</span>
-                            </div>
-                            <div class="flex items-center gap-x-3 px-4 py-3 hover:bg-zinc-800 rounded-3xl text-zinc-400 hover:text-white transition-colors">
-                                <span class="text-xl">🔀</span>
-                                <span class="font-medium">Merge PDFs</span>
-                            </div>
-                        </div>
-                    </div>
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-4xl md:text-5xl font-semibold tracking-tighter text-center mb-2">Image to PDF</h1>
+            <p class="text-zinc-400 text-center text-lg">Drop images • Crop • Export perfect PDF</p>
+
+            <!-- Upload Area -->
+            <div id="upload-area" 
+                 class="drop-zone mt-12 border-4 border-dashed border-zinc-700 hover:border-yellow-400 rounded-3xl p-16 text-center cursor-pointer">
+                <div class="mx-auto w-20 h-20 bg-zinc-800 rounded-2xl flex items-center justify-center text-5xl mb-6">
+                    📤
                 </div>
+                <h3 class="text-2xl font-medium mb-2">Drop your images here</h3>
+                <p class="text-zinc-400 mb-8">or click below to choose files</p>
+                
+                <button onclick="triggerFileInput()" 
+                        class="px-10 py-5 bg-yellow-400 hover:bg-yellow-300 text-zinc-900 font-semibold rounded-2xl text-lg shadow-lg">
+                    Select Images
+                </button>
+                
+                <p class="text-xs text-zinc-500 mt-10">PNG, JPG, JPEG, WEBP supported</p>
             </div>
 
-            <!-- Main Content -->
-            <div class="flex-1 p-8">
-                <div class="max-w-4xl mx-auto">
-                    <h1 class="text-5xl font-semibold tracking-tighter logo-font mb-2">Turn Images into Perfect PDFs</h1>
-                    <p class="text-zinc-400 text-lg">Fast, beautiful, and no sign-up needed.</p>
+            <input type="file" id="file-input" multiple accept="image/*" class="hidden">
 
-                    <!-- Upload Area -->
-                    <div id="upload-area" 
-                         class="drop-zone mt-12 border-4 border-dashed border-zinc-700 hover:border-yellow-400 rounded-3xl p-16 text-center cursor-pointer">
-                        <div class="mx-auto w-20 h-20 bg-zinc-800 rounded-2xl flex items-center justify-center text-4xl mb-6">
-                            📤
-                        </div>
-                        <h3 class="text-2xl font-medium mb-2">Drop your images here</h3>
-                        <p class="text-zinc-400 mb-6">or click to browse from your device</p>
-                        <button onclick="triggerFileInput()"
-                                class="px-8 py-4 bg-yellow-400 hover:bg-yellow-300 transition-colors text-zinc-900 font-semibold rounded-2xl text-lg">
-                            Select Images
+            <!-- Editor -->
+            <div id="editor" class="hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold">Edit Images</h2>
+                    <div class="flex gap-3">
+                        <button onclick="addMoreImages()" 
+                                class="px-6 py-3 border border-zinc-600 hover:border-white rounded-2xl">
+                            + Add More
                         </button>
-                        <p class="text-xs text-zinc-500 mt-8">PNG, JPG, JPEG, WEBP • Max 50MB per file</p>
+                        <button onclick="generatePDF()" 
+                                class="px-8 py-3 bg-yellow-400 hover:bg-yellow-300 text-zinc-900 font-semibold rounded-2xl">
+                            Download PDF
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-12 gap-6">
+                    <!-- Preview -->
+                    <div class="md:col-span-8">
+                        <div class="bg-zinc-900 border border-zinc-700 rounded-3xl overflow-hidden">
+                            <div class="flex items-center justify-between px-6 py-4 border-b border-zinc-700">
+                                <span id="current-image-name" class="font-medium"></span>
+                                <div class="flex items-center gap-4">
+                                    <button onclick="prevImage()" class="text-2xl hover:text-yellow-400">←</button>
+                                    <span id="image-counter" class="text-zinc-400">1 / 1</span>
+                                    <button onclick="nextImage()" class="text-2xl hover:text-yellow-400">→</button>
+                                </div>
+                            </div>
+                            <div class="p-6 bg-black">
+                                <img id="cropper-image" class="max-h-[55vh] mx-auto rounded-xl" alt="">
+                            </div>
+                        </div>
                     </div>
 
-                    <input type="file" id="file-input" multiple accept="image/*" class="hidden">
-
-                    <!-- Preview & Editor -->
-                    <div id="editor" class="hidden">
-                        <div class="flex justify-between items-center mb-6">
-                            <h2 class="text-2xl font-semibold">Edit &amp; Export</h2>
-                            <div class="flex gap-x-3">
-                                <button onclick="addMoreImages()" 
-                                        class="px-6 py-3 border border-zinc-700 hover:border-white rounded-2xl flex items-center gap-x-2">
-                                    <span>+</span> Add more
-                                </button>
-                                <button onclick="generatePDF()" 
-                                        class="px-8 py-3 bg-yellow-400 hover:bg-yellow-300 text-zinc-900 font-semibold rounded-2xl flex items-center gap-x-2">
-                                    <span>↓</span> Download PDF
-                                </button>
+                    <!-- Controls -->
+                    <div class="md:col-span-4 space-y-6">
+                        <!-- Page Size -->
+                        <div class="bg-zinc-900 border border-zinc-700 rounded-3xl p-6">
+                            <h4 class="font-semibold mb-4">Page Size</h4>
+                            <div class="space-y-3">
+                                <label onclick="selectSize(0)" id="size-original" 
+                                       class="flex items-center gap-3 p-4 border-2 border-yellow-400 rounded-2xl cursor-pointer">
+                                    <input type="radio" name="size" checked>
+                                    <div>
+                                        <div>Original Size</div>
+                                        <div class="text-xs text-zinc-400">Keeps image quality</div>
+                                    </div>
+                                </label>
+                                <label onclick="selectSize(1)" id="size-a4"
+                                       class="flex items-center gap-3 p-4 border border-zinc-700 hover:border-zinc-500 rounded-2xl cursor-pointer">
+                                    <input type="radio" name="size">
+                                    <div>
+                                        <div>A4 Size</div>
+                                        <div class="text-xs text-zinc-400">Standard document</div>
+                                    </div>
+                                </label>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                            <!-- Cropper Area -->
-                            <div class="lg:col-span-8">
-                                <div class="bg-zinc-900 border border-zinc-700 rounded-3xl overflow-hidden preview-container">
-                                    <div class="flex items-center justify-between border-b border-zinc-700 px-6 py-4">
-                                        <div class="flex items-center gap-x-4">
-                                            <span id="current-image-name" class="font-medium"></span>
-                                        </div>
-                                        <div class="flex items-center gap-x-2">
-                                            <button onclick="prevImage()" 
-                                                    class="w-9 h-9 flex items-center justify-center hover:bg-zinc-800 rounded-2xl">←</button>
-                                            <span id="image-counter" class="text-sm text-zinc-400 px-3"></span>
-                                            <button onclick="nextImage()" 
-                                                    class="w-9 h-9 flex items-center justify-center hover:bg-zinc-800 rounded-2xl">→</button>
-                                        </div>
-                                    </div>
-                                    <div class="p-6 bg-black">
-                                        <img id="cropper-image" class="max-h-[55vh] mx-auto rounded-2xl" alt="Preview">
-                                    </div>
-                                </div>
+                        <!-- Crop Tools -->
+                        <div class="bg-zinc-900 border border-zinc-700 rounded-3xl p-6">
+                            <h4 class="font-semibold mb-4">Crop & Rotate</h4>
+                            <div class="grid grid-cols-2 gap-3">
+                                <button onclick="cropper && cropper.rotate(-90)" 
+                                        class="py-4 bg-zinc-800 hover:bg-zinc-700 rounded-2xl">↺ Rotate Left</button>
+                                <button onclick="cropper && cropper.rotate(90)" 
+                                        class="py-4 bg-zinc-800 hover:bg-zinc-700 rounded-2xl">↻ Rotate Right</button>
                             </div>
+                            <button onclick="cropImage()" 
+                                    class="mt-4 w-full py-4 bg-white text-black font-semibold rounded-2xl">
+                                Apply Crop
+                            </button>
+                        </div>
 
-                            <!-- Controls -->
-                            <div class="lg:col-span-4 space-y-6">
-                                <!-- Size Options -->
-                                <div class="bg-zinc-900 border border-zinc-700 rounded-3xl p-6">
-                                    <h4 class="font-semibold mb-4">Page Size</h4>
-                                    <div class="space-y-3">
-                                        <label onclick="selectSize(0)" id="size-original"
-                                               class="flex items-center gap-x-3 p-4 border-2 border-yellow-400 rounded-2xl cursor-pointer">
-                                            <input type="radio" name="size" checked class="w-5 h-5 accent-yellow-400">
-                                            <div>
-                                                <div class="font-medium">Original Image Size</div>
-                                                <div class="text-xs text-zinc-400">Best quality • Multiple pages</div>
-                                            </div>
-                                        </label>
-                                        
-                                        <label onclick="selectSize(1)" id="size-a4"
-                                               class="flex items-center gap-x-3 p-4 border border-zinc-700 hover:border-zinc-500 rounded-2xl cursor-pointer">
-                                            <input type="radio" name="size" class="w-5 h-5 accent-yellow-400">
-                                            <div>
-                                                <div class="font-medium">A4 (210 × 297 mm)</div>
-                                                <div class="text-xs text-zinc-400">Standard document size</div>
-                                            </div>
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <!-- Crop Controls -->
-                                <div class="bg-zinc-900 border border-zinc-700 rounded-3xl p-6">
-                                    <h4 class="font-semibold mb-4">Crop Tool</h4>
-                                    <div class="grid grid-cols-2 gap-3">
-                                        <button onclick="cropper.rotate(-90)" 
-                                                class="py-4 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm font-medium">↺ Rotate Left</button>
-                                        <button onclick="cropper.rotate(90)" 
-                                                class="py-4 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm font-medium">↻ Rotate Right</button>
-                                    </div>
-                                    <button onclick="cropImage()" 
-                                            class="mt-4 w-full py-4 bg-white text-zinc-900 font-semibold rounded-2xl">
-                                        Apply Crop
-                                    </button>
-                                </div>
-
-                                <!-- Images List -->
-                                <div class="bg-zinc-900 border border-zinc-700 rounded-3xl p-6">
-                                    <h4 class="font-semibold mb-4">Images (<span id="image-count">1</span>)</h4>
-                                    <div id="images-list" class="max-h-64 overflow-auto space-y-3 text-sm"></div>
-                                </div>
-                            </div>
+                        <!-- Images List -->
+                        <div class="bg-zinc-900 border border-zinc-700 rounded-3xl p-6">
+                            <h4 class="font-semibold mb-3">Images (<span id="image-count">1</span>)</h4>
+                            <div id="images-list" class="space-y-2 max-h-60 overflow-auto"></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <footer class="border-t border-zinc-800 py-8 text-center text-xs text-zinc-500">
-        SimpleDocs — Built for speed • Images stay on your device
-    </footer>
 
     <script>
         let images = [];
@@ -208,10 +152,12 @@
         const uploadArea = document.getElementById('upload-area');
         const editor = document.getElementById('editor');
 
-        // Tailwind script already included
+        function triggerFileInput() {
+            fileInput.click();
+        }
 
-        // Drag and Drop
-        uploadArea.addEventListener('dragover', (e) => {
+        // Drag & Drop
+        uploadArea.addEventListener('dragover', e => {
             e.preventDefault();
             uploadArea.classList.add('dragover');
         });
@@ -220,34 +166,33 @@
             uploadArea.classList.remove('dragover');
         });
 
-        uploadArea.addEventListener('drop', (e) => {
+        uploadArea.addEventListener('drop', e => {
             e.preventDefault();
             uploadArea.classList.remove('dragover');
             handleFiles(e.dataTransfer.files);
         });
 
         uploadArea.addEventListener('click', () => {
-            fileInput.click();
+            triggerFileInput();
         });
 
-        fileInput.addEventListener('change', (e) => {
-            handleFiles(e.target.files);
+        fileInput.addEventListener('change', e => {
+            if (e.target.files.length > 0) {
+                handleFiles(e.target.files);
+            }
         });
 
         function handleFiles(files) {
             Array.from(files).forEach(file => {
                 if (file.type.startsWith('image/')) {
                     const reader = new FileReader();
-                    reader.onload = function(e) {
+                    reader.onload = (e) => {
                         images.push({
                             name: file.name,
-                            data: e.target.result,
-                            width: 0,
-                            height: 0
+                            data: e.target.result
                         });
-                        if (images.length === 1) {
-                            loadEditor();
-                        } else {
+                        if (images.length === 1) loadEditor();
+                        else {
                             renderImagesList();
                             updateCounter();
                         }
@@ -270,21 +215,17 @@
             
             document.getElementById('current-image-name').textContent = current.name;
             img.src = current.data;
-            
             updateCounter();
-            
-            // Destroy previous cropper
+
             if (cropper) cropper.destroy();
-            
-            // Initialize new cropper
+
             setTimeout(() => {
                 cropper = new Cropper(img, {
-                    aspectRatio: NaN,
                     viewMode: 1,
                     autoCropArea: 0.9,
                     responsive: true,
                 });
-            }, 100);
+            }, 150);
         }
 
         function updateCounter() {
@@ -295,16 +236,15 @@
         function renderImagesList() {
             const container = document.getElementById('images-list');
             container.innerHTML = '';
-            
-            images.forEach((img, index) => {
+            images.forEach((img, i) => {
                 const div = document.createElement('div');
-                div.className = `flex items-center gap-x-3 p-3 rounded-2xl cursor-pointer transition-colors ${index === currentIndex ? 'bg-yellow-400 text-zinc-900' : 'hover:bg-zinc-800'}`;
+                div.className = `flex items-center gap-3 p-3 rounded-2xl cursor-pointer ${i === currentIndex ? 'bg-yellow-400 text-zinc-900' : 'hover:bg-zinc-800'}`;
                 div.innerHTML = `
-                    <img src="${img.data}" class="w-12 h-12 object-cover rounded-xl">
-                    <div class="flex-1 truncate">${img.name}</div>
+                    <img src="${img.data}" class="w-12 h-12 object-cover rounded-lg">
+                    <div class="truncate text-sm">${img.name}</div>
                 `;
                 div.onclick = () => {
-                    currentIndex = index;
+                    currentIndex = i;
                     showCurrentImage();
                     renderImagesList();
                 };
@@ -338,90 +278,55 @@
 
         function cropImage() {
             if (!cropper) return;
-            
-            const croppedCanvas = cropper.getCroppedCanvas();
-            const croppedDataUrl = croppedCanvas.toDataURL('image/jpeg', 0.95);
-            
-            images[currentIndex].data = croppedDataUrl;
+            const cropped = cropper.getCroppedCanvas().toDataURL('image/jpeg', 0.95);
+            images[currentIndex].data = cropped;
             showCurrentImage();
         }
 
         function addMoreImages() {
-            fileInput.click();
+            triggerFileInput();
         }
 
         async function generatePDF() {
             const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF({
-                orientation: "portrait",
-                unit: "mm",
-                format: "a4"
-            });
-            
-            const isA4 = selectedSize === 1;
-            
+            const pdf = new jsPDF('p', 'mm', 'a4');
+
             for (let i = 0; i < images.length; i++) {
                 if (i > 0) pdf.addPage();
-                
-                const imgData = images[i].data;
-                
-                // Create temporary image to get dimensions
+
                 const tempImg = new Image();
-                tempImg.src = imgData;
-                
+                tempImg.src = images[i].data;
+
                 await new Promise(resolve => {
                     tempImg.onload = () => {
-                        let pdfWidth, pdfHeight, x, y;
-                        
-                        if (isA4) {
-                            // A4 mode - fit to page with margins
-                            const pageWidth = 210;
-                            const pageHeight = 297;
-                            const margin = 10;
-                            
-                            const ratio = Math.min(
-                                (pageWidth - margin * 2) / tempImg.width,
-                                (pageHeight - margin * 2) / tempImg.height
-                            );
-                            
-                            pdfWidth = tempImg.width * ratio;
-                            pdfHeight = tempImg.height * ratio;
-                            
-                            x = (pageWidth - pdfWidth) / 2;
-                            y = (pageHeight - pdfHeight) / 2;
+                        let x = 10, y = 10, w = 190;
+
+                        if (selectedSize === 1) { // A4
+                            const ratio = Math.min(190 / tempImg.width, 277 / tempImg.height);
+                            w = tempImg.width * ratio;
+                            const h = tempImg.height * ratio;
+                            x = (210 - w) / 2;
+                            y = (297 - h) / 2;
+                            pdf.addImage(tempImg, 'JPEG', x, y, w, h);
                         } else {
-                            // Original dimensions - scale to fit A4 if too big
-                            const maxWidth = 190;
-                            const maxHeight = 277;
-                            
-                            let ratio = 1;
-                            if (tempImg.width > maxWidth || tempImg.height > maxHeight) {
-                                ratio = Math.min(maxWidth / tempImg.width, maxHeight / tempImg.height);
-                            }
-                            
-                            pdfWidth = tempImg.width * ratio;
-                            pdfHeight = tempImg.height * ratio;
-                            
-                            x = (210 - pdfWidth) / 2;
-                            y = 10;
+                            const ratio = Math.min(190 / tempImg.width, 277 / tempImg.height);
+                            w = tempImg.width * ratio;
+                            const h = tempImg.height * ratio;
+                            pdf.addImage(tempImg, 'JPEG', x, y, w, h);
                         }
-                        
-                        pdf.addImage(imgData, 'JPEG', x, y, pdfWidth, pdfHeight);
                         resolve();
                     };
                 });
             }
-            
-            pdf.save('document.pdf');
+            pdf.save('My_Document.pdf');
         }
 
-        // Keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
+        // Keyboard support
+        document.addEventListener('keydown', e => {
             if (editor.classList.contains('hidden')) return;
-            
             if (e.key === "ArrowLeft") prevImage();
             if (e.key === "ArrowRight") nextImage();
         });
-
-        // Initialize
-        consol
+    </script>
+</body>
+                                                                        </html>
